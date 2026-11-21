@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
--
+- Added `GroupwiseWrapper` for computing a metric per dynamically discovered group key, with distributed key-set alignment, checkpoint resume and a `max_groups` cardinality limit ([#3499](https://github.com/Lightning-AI/torchmetrics/pull/3499))
+
 
 
 ### Changed

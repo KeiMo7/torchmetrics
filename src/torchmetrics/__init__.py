@@ -40,6 +40,7 @@ from torchmetrics.aggregation import (  # noqa: E402
     MaxMetric,
     MeanMetric,
     MinMetric,
+    QuantileMetric,
     RunningMean,
     RunningSum,
     SumMetric,

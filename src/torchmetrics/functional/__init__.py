@@ -139,6 +139,7 @@ from torchmetrics.functional.text._deprecated import _translation_edit_rate as t
 from torchmetrics.functional.text._deprecated import _word_error_rate as word_error_rate
 from torchmetrics.functional.text._deprecated import _word_information_lost as word_information_lost
 from torchmetrics.functional.text._deprecated import _word_information_preserved as word_information_preserved
+from torchmetrics.functional.aggregation import quantile, quantile_rank_error_bound
 from torchmetrics.utilities.imports import _TRANSFORMERS_GREATER_EQUAL_4_4
 
 if _TRANSFORMERS_GREATER_EQUAL_4_4:
@@ -206,6 +207,8 @@ __all__ = [
     "precision",
     "precision_at_fixed_recall",
     "precision_recall_curve",
+    "quantile",
+    "quantile_rank_error_bound",
     "r2_score",
     "recall",
     "recall_at_fixed_precision",

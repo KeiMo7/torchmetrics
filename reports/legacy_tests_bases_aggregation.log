@@ -1,0 +1,24 @@
+................s.........ssss.s.ssss......ss........................... [ 50%]
+.......................................................................  [100%]
+=============================== warnings summary ===============================
+tests/unittests/bases/test_metric.py::test_reset_compute
+tests/unittests/bases/test_metric.py::test_compute[True]
+tests/unittests/bases/test_metric.py::test_compute[False]
+  /home/wll/uid62/src/torchmetrics/utilities/prints.py:43: UserWarning: The ``compute`` method of metric DummyMetricSum was called before the ``update`` method which may lead to errors, as metric states have not yet been updated.
+    warnings.warn(*args, **kwargs)
+
+tests/unittests/bases/test_metric.py: 4 warnings
+tests/unittests/bases/test_aggregation.py: 24 warnings
+  /home/wll/uid62/src/torchmetrics/utilities/prints.py:32: DeprecationWarning: This property will be removed in 2.0.0. Use `Metric.updated_called` instead.
+    return fn(*args, **kwargs)
+
+tests/unittests/bases/test_metric.py::test_merge_state_feature_for_different_metrics[AdjustedRandScore-<lambda>-<lambda>]
+  /home/wll/uid62/src/torchmetrics/functional/clustering/utils.py:156: UserWarning: Sparse invariant checks are implicitly disabled. Memory errors (e.g. SEGFAULT) will occur when operating on a sparse tensor which violates the invariants, but checks incur performance overhead. To silence this warning, explicitly opt in or out. See `torch.sparse.check_sparse_tensor_invariants.__doc__` for guidance.  (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:848.)
+    contingency = torch.sparse_coo_tensor(
+
+tests/unittests/bases/test_aggregation.py::test_mean_metric_broadcast[warn]
+  /home/wll/uid62/src/torchmetrics/utilities/prints.py:43: UserWarning: Encountered `nan` values in tensor. Will be removed.
+    warnings.warn(*args, **kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+131 passed, 12 skipped, 33 warnings in 5.97s

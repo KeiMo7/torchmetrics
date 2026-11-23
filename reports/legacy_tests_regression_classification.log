@@ -1,0 +1,3610 @@
+.............ssssssssssss............sss...sss...............sss...sss.. [  4%]
+...................ssssssssssss.....................ssssssssssssssssssss [  9%]
+s.....................sssssssssssssssssssss.....................ssssssss [ 13%]
+sssssssssssss.....................sssssssssssssssssssss................. [ 18%]
+....sss...ssss.FFssssF..s.....................sss...ssss.FFssss..Fs..... [ 23%]
+................sss...ssss.FFssss.F.s.....................sss...ssss.FFs [ 27%]
+sss...s.....................sss...ssss.F.ssss...s.....................ss [ 32%]
+s...ssss.F.ssss...s.....................sss...ssss.F.ssss...s........... [ 36%]
+..........sss...ssss.F.ssss...s.....................ssssssssssssssssssss [ 41%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 46%]
+ssssssssssssssssssssssssssssssssss...................................... [ 50%]
+........sssssssss...sssssssss...........................sssssssss...ssss [ 55%]
+sssss..F........................sssssssss...sssssssss.FF................ [ 59%]
+........sssssssss...sssssssssF.F............sss...sss...............sss. [ 64%]
+..sss...............sss...sssFF.............sss...sssF.................. [ 69%]
+..ssssssssssss.......................................................... [ 73%]
+.....................................ssssssssssssssssss................. [ 78%]
+................ssss.................................................... [ 82%]
+..............ssssssss.................................................. [ 87%]
+..................................................................s.s.s. [ 92%]
+s.s.s.............................................................ss.... [ 96%]
+...................................................                      [100%]
+=================================== FAILURES ===================================
+_ TestMulticlassAccuracy.test_multiclass_accuracy[False-micro-samplewise-0-input[multi_dim-probs]] _
+
+self = <unittests.classification.test_accuracy.TestMulticlassAccuracy object at 0x7ef56a243160>
+ddp = False
+inputs = _Input(preds=tensor([[[[0.2259, 0.2657, 0.1682],
+          [0.2378, 0.1649, 0.2317],
+          [0.1596, 0.2247, 0.2195...      [3, 4, 4],
+         [0, 1, 2],
+         [4, 3, 0],
+         [1, 3, 1],
+         [2, 0, 2],
+         [0, 1, 0]]]))
+ignore_index = 0, multidim_average = 'samplewise', average = 'micro'
+
+    @pytest.mark.parametrize("ignore_index", [None, 0, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    def test_multiclass_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and target.ndim < 3:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MulticlassAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multiclass,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+                "num_classes": NUM_CLASSES,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:247: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:210: in _reference_sklearn_accuracy_multiclass
+    res.append(_reference_sklearn_accuracy(true, pred))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:40: in _reference_sklearn_accuracy
+    score = sk_accuracy(target, preds)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:420: in accuracy_score
+    y_type, _, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'sklearn.externals.array_api_compat.numpy' from '/home/wll/uid191/sklearn/externals/array_api_compat/numpy/__init__.py'>
+device = None
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMulticlassAccuracy.test_multiclass_accuracy[False-micro-samplewise-0-input[multi_dim-logits]] _
+
+self = <unittests.classification.test_accuracy.TestMulticlassAccuracy object at 0x7ef56a2431b0>
+ddp = False
+inputs = _Input(preds=tensor([[[[-1.9326, -1.2793, -1.2886],
+          [-1.4741, -1.5472, -1.4715],
+          [-1.8744, -1.9828...      [4, 2, 4],
+         [4, 3, 0],
+         [2, 0, 0],
+         [0, 1, 1],
+         [0, 1, 4],
+         [3, 3, 4]]]))
+ignore_index = 0, multidim_average = 'samplewise', average = 'micro'
+
+    @pytest.mark.parametrize("ignore_index", [None, 0, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    def test_multiclass_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and target.ndim < 3:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MulticlassAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multiclass,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+                "num_classes": NUM_CLASSES,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:247: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:210: in _reference_sklearn_accuracy_multiclass
+    res.append(_reference_sklearn_accuracy(true, pred))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:40: in _reference_sklearn_accuracy
+    score = sk_accuracy(target, preds)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:420: in accuracy_score
+    y_type, _, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'sklearn.externals.array_api_compat.numpy' from '/home/wll/uid191/sklearn/externals/array_api_compat/numpy/__init__.py'>
+device = None
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMulticlassAccuracy.test_multiclass_accuracy[False-micro-samplewise--1-input[multi_dim-labels]] _
+
+self = <unittests.classification.test_accuracy.TestMulticlassAccuracy object at 0x7ef56a243340>
+ddp = False
+inputs = _Input(preds=tensor([[[1, 4, 0],
+         [0, 4, 3],
+         [0, 3, 0],
+         [2, 3, 1],
+         [1, 0, 3],
+     ...      [0, 0, 1],
+         [3, 0, 2],
+         [3, 4, 1],
+         [3, 1, 2],
+         [4, 1, 1],
+         [3, 0, 3]]]))
+ignore_index = -1, multidim_average = 'samplewise', average = 'micro'
+
+    @pytest.mark.parametrize("ignore_index", [None, 0, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    def test_multiclass_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and target.ndim < 3:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MulticlassAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multiclass,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+                "num_classes": NUM_CLASSES,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:247: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:210: in _reference_sklearn_accuracy_multiclass
+    res.append(_reference_sklearn_accuracy(true, pred))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:40: in _reference_sklearn_accuracy
+    score = sk_accuracy(target, preds)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:420: in accuracy_score
+    y_type, _, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'sklearn.externals.array_api_compat.numpy' from '/home/wll/uid191/sklearn/externals/array_api_compat/numpy/__init__.py'>
+device = None
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMulticlassAccuracy.test_multiclass_accuracy[False-macro-samplewise-0-input[multi_dim-probs]] _
+
+self = <unittests.classification.test_accuracy.TestMulticlassAccuracy object at 0x7ef56a243e80>
+ddp = False
+inputs = _Input(preds=tensor([[[[0.2259, 0.2657, 0.1682],
+          [0.2378, 0.1649, 0.2317],
+          [0.1596, 0.2247, 0.2195...      [3, 4, 4],
+         [0, 1, 2],
+         [4, 3, 0],
+         [1, 3, 1],
+         [2, 0, 2],
+         [0, 1, 0]]]))
+ignore_index = 0, multidim_average = 'samplewise', average = 'macro'
+
+    @pytest.mark.parametrize("ignore_index", [None, 0, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    def test_multiclass_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and target.ndim < 3:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MulticlassAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multiclass,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+                "num_classes": NUM_CLASSES,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:247: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:212: in _reference_sklearn_accuracy_multiclass
+    confmat = sk_confusion_matrix(true, pred, labels=list(range(NUM_CLASSES)))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:549: in confusion_matrix
+    y_type, unique_labels, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'numpy' from '/home/wll/.local/lib/python3.14/site-packages/numpy/__init__.py'>
+device = 'cpu'
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMulticlassAccuracy.test_multiclass_accuracy[False-macro-samplewise-0-input[multi_dim-logits]] _
+
+self = <unittests.classification.test_accuracy.TestMulticlassAccuracy object at 0x7ef56a243ed0>
+ddp = False
+inputs = _Input(preds=tensor([[[[-1.9326, -1.2793, -1.2886],
+          [-1.4741, -1.5472, -1.4715],
+          [-1.8744, -1.9828...      [4, 2, 4],
+         [4, 3, 0],
+         [2, 0, 0],
+         [0, 1, 1],
+         [0, 1, 4],
+         [3, 3, 4]]]))
+ignore_index = 0, multidim_average = 'samplewise', average = 'macro'
+
+    @pytest.mark.parametrize("ignore_index", [None, 0, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    def test_multiclass_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and target.ndim < 3:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MulticlassAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multiclass,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+                "num_classes": NUM_CLASSES,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:247: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:212: in _reference_sklearn_accuracy_multiclass
+    confmat = sk_confusion_matrix(true, pred, labels=list(range(NUM_CLASSES)))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:549: in confusion_matrix
+    y_type, unique_labels, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'numpy' from '/home/wll/.local/lib/python3.14/site-packages/numpy/__init__.py'>
+device = 'cpu'
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMulticlassAccuracy.test_multiclass_accuracy[False-macro-samplewise--1-input[multi_dim-logits]] _
+
+self = <unittests.classification.test_accuracy.TestMulticlassAccuracy object at 0x7ef56a2a4140>
+ddp = False
+inputs = _Input(preds=tensor([[[[-1.9326, -1.2793, -1.2886],
+          [-1.4741, -1.5472, -1.4715],
+          [-1.8744, -1.9828...      [4, 2, 4],
+         [4, 3, 0],
+         [2, 0, 0],
+         [0, 1, 1],
+         [0, 1, 4],
+         [3, 3, 4]]]))
+ignore_index = -1, multidim_average = 'samplewise', average = 'macro'
+
+    @pytest.mark.parametrize("ignore_index", [None, 0, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    def test_multiclass_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and target.ndim < 3:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MulticlassAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multiclass,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+                "num_classes": NUM_CLASSES,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:247: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:212: in _reference_sklearn_accuracy_multiclass
+    confmat = sk_confusion_matrix(true, pred, labels=list(range(NUM_CLASSES)))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:549: in confusion_matrix
+    y_type, unique_labels, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'numpy' from '/home/wll/.local/lib/python3.14/site-packages/numpy/__init__.py'>
+device = 'cpu'
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMulticlassAccuracy.test_multiclass_accuracy[False-weighted-samplewise-0-input[multi_dim-probs]] _
+
+self = <unittests.classification.test_accuracy.TestMulticlassAccuracy object at 0x7ef56a2a4be0>
+ddp = False
+inputs = _Input(preds=tensor([[[[0.2259, 0.2657, 0.1682],
+          [0.2378, 0.1649, 0.2317],
+          [0.1596, 0.2247, 0.2195...      [3, 4, 4],
+         [0, 1, 2],
+         [4, 3, 0],
+         [1, 3, 1],
+         [2, 0, 2],
+         [0, 1, 0]]]))
+ignore_index = 0, multidim_average = 'samplewise', average = 'weighted'
+
+    @pytest.mark.parametrize("ignore_index", [None, 0, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    def test_multiclass_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and target.ndim < 3:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MulticlassAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multiclass,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+                "num_classes": NUM_CLASSES,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:247: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:212: in _reference_sklearn_accuracy_multiclass
+    confmat = sk_confusion_matrix(true, pred, labels=list(range(NUM_CLASSES)))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:549: in confusion_matrix
+    y_type, unique_labels, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'numpy' from '/home/wll/.local/lib/python3.14/site-packages/numpy/__init__.py'>
+device = 'cpu'
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMulticlassAccuracy.test_multiclass_accuracy[False-weighted-samplewise-0-input[multi_dim-logits]] _
+
+self = <unittests.classification.test_accuracy.TestMulticlassAccuracy object at 0x7ef56a2a4c30>
+ddp = False
+inputs = _Input(preds=tensor([[[[-1.9326, -1.2793, -1.2886],
+          [-1.4741, -1.5472, -1.4715],
+          [-1.8744, -1.9828...      [4, 2, 4],
+         [4, 3, 0],
+         [2, 0, 0],
+         [0, 1, 1],
+         [0, 1, 4],
+         [3, 3, 4]]]))
+ignore_index = 0, multidim_average = 'samplewise', average = 'weighted'
+
+    @pytest.mark.parametrize("ignore_index", [None, 0, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    def test_multiclass_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and target.ndim < 3:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MulticlassAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multiclass,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+                "num_classes": NUM_CLASSES,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:247: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:212: in _reference_sklearn_accuracy_multiclass
+    confmat = sk_confusion_matrix(true, pred, labels=list(range(NUM_CLASSES)))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:549: in confusion_matrix
+    y_type, unique_labels, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'numpy' from '/home/wll/.local/lib/python3.14/site-packages/numpy/__init__.py'>
+device = 'cpu'
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMulticlassAccuracy.test_multiclass_accuracy[False-weighted-samplewise--1-input[multi_dim-probs]] _
+
+self = <unittests.classification.test_accuracy.TestMulticlassAccuracy object at 0x7ef56a2a4e10>
+ddp = False
+inputs = _Input(preds=tensor([[[[0.2259, 0.2657, 0.1682],
+          [0.2378, 0.1649, 0.2317],
+          [0.1596, 0.2247, 0.2195...      [3, 4, 4],
+         [0, 1, 2],
+         [4, 3, 0],
+         [1, 3, 1],
+         [2, 0, 2],
+         [0, 1, 0]]]))
+ignore_index = -1, multidim_average = 'samplewise', average = 'weighted'
+
+    @pytest.mark.parametrize("ignore_index", [None, 0, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    def test_multiclass_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and target.ndim < 3:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MulticlassAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multiclass,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+                "num_classes": NUM_CLASSES,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:247: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:212: in _reference_sklearn_accuracy_multiclass
+    confmat = sk_confusion_matrix(true, pred, labels=list(range(NUM_CLASSES)))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:549: in confusion_matrix
+    y_type, unique_labels, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'numpy' from '/home/wll/.local/lib/python3.14/site-packages/numpy/__init__.py'>
+device = 'cpu'
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMulticlassAccuracy.test_multiclass_accuracy[False-None-samplewise-0-input[multi_dim-probs]] _
+
+self = <unittests.classification.test_accuracy.TestMulticlassAccuracy object at 0x7ef56a2a5900>
+ddp = False
+inputs = _Input(preds=tensor([[[[0.2259, 0.2657, 0.1682],
+          [0.2378, 0.1649, 0.2317],
+          [0.1596, 0.2247, 0.2195...      [3, 4, 4],
+         [0, 1, 2],
+         [4, 3, 0],
+         [1, 3, 1],
+         [2, 0, 2],
+         [0, 1, 0]]]))
+ignore_index = 0, multidim_average = 'samplewise', average = None
+
+    @pytest.mark.parametrize("ignore_index", [None, 0, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    def test_multiclass_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and target.ndim < 3:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MulticlassAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multiclass,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+                "num_classes": NUM_CLASSES,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:247: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:212: in _reference_sklearn_accuracy_multiclass
+    confmat = sk_confusion_matrix(true, pred, labels=list(range(NUM_CLASSES)))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:549: in confusion_matrix
+    y_type, unique_labels, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'numpy' from '/home/wll/.local/lib/python3.14/site-packages/numpy/__init__.py'>
+device = 'cpu'
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMulticlassAccuracy.test_multiclass_accuracy[False-None-samplewise-0-input[multi_dim-logits]] _
+
+self = <unittests.classification.test_accuracy.TestMulticlassAccuracy object at 0x7ef56a2a5950>
+ddp = False
+inputs = _Input(preds=tensor([[[[-1.9326, -1.2793, -1.2886],
+          [-1.4741, -1.5472, -1.4715],
+          [-1.8744, -1.9828...      [4, 2, 4],
+         [4, 3, 0],
+         [2, 0, 0],
+         [0, 1, 1],
+         [0, 1, 4],
+         [3, 3, 4]]]))
+ignore_index = 0, multidim_average = 'samplewise', average = None
+
+    @pytest.mark.parametrize("ignore_index", [None, 0, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    def test_multiclass_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and target.ndim < 3:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MulticlassAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multiclass,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+                "num_classes": NUM_CLASSES,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:247: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:212: in _reference_sklearn_accuracy_multiclass
+    confmat = sk_confusion_matrix(true, pred, labels=list(range(NUM_CLASSES)))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:549: in confusion_matrix
+    y_type, unique_labels, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'numpy' from '/home/wll/.local/lib/python3.14/site-packages/numpy/__init__.py'>
+device = 'cpu'
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMulticlassAccuracy.test_multiclass_accuracy_functional[micro-samplewise-0-input[multi_dim-probs]] _
+
+self = <unittests.classification.test_accuracy.TestMulticlassAccuracy object at 0x7ef56a2a6ad0>
+inputs = _Input(preds=tensor([[[[0.2259, 0.2657, 0.1682],
+          [0.2378, 0.1649, 0.2317],
+          [0.1596, 0.2247, 0.2195...      [3, 4, 4],
+         [0, 1, 2],
+         [4, 3, 0],
+         [1, 3, 1],
+         [2, 0, 2],
+         [0, 1, 0]]]))
+ignore_index = 0, multidim_average = 'samplewise', average = 'micro'
+
+    @pytest.mark.parametrize("ignore_index", [None, 0, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    def test_multiclass_accuracy_functional(self, inputs, ignore_index, multidim_average, average):
+        """Test functional implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and target.ndim < 3:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+    
+>       self.run_functional_metric_test(
+            preds=preds,
+            target=target,
+            metric_functional=multiclass_accuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multiclass,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+                "num_classes": NUM_CLASSES,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:277: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:486: in run_functional_metric_test
+    _functional_test(
+tests/unittests/_helpers/testers.py:381: in _functional_test
+    ref_result = _reference_cachier(reference_metric)(
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:210: in _reference_sklearn_accuracy_multiclass
+    res.append(_reference_sklearn_accuracy(true, pred))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:40: in _reference_sklearn_accuracy
+    score = sk_accuracy(target, preds)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:420: in accuracy_score
+    y_type, _, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'sklearn.externals.array_api_compat.numpy' from '/home/wll/uid191/sklearn/externals/array_api_compat/numpy/__init__.py'>
+device = None
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMulticlassAccuracy.test_multiclass_accuracy_functional[macro-samplewise-0-input[multi_dim-probs]] _
+
+self = <unittests.classification.test_accuracy.TestMulticlassAccuracy object at 0x7ef56a2a7b10>
+inputs = _Input(preds=tensor([[[[0.2259, 0.2657, 0.1682],
+          [0.2378, 0.1649, 0.2317],
+          [0.1596, 0.2247, 0.2195...      [3, 4, 4],
+         [0, 1, 2],
+         [4, 3, 0],
+         [1, 3, 1],
+         [2, 0, 2],
+         [0, 1, 0]]]))
+ignore_index = 0, multidim_average = 'samplewise', average = 'macro'
+
+    @pytest.mark.parametrize("ignore_index", [None, 0, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    def test_multiclass_accuracy_functional(self, inputs, ignore_index, multidim_average, average):
+        """Test functional implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and target.ndim < 3:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+    
+>       self.run_functional_metric_test(
+            preds=preds,
+            target=target,
+            metric_functional=multiclass_accuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multiclass,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+                "num_classes": NUM_CLASSES,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:277: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:486: in run_functional_metric_test
+    _functional_test(
+tests/unittests/_helpers/testers.py:381: in _functional_test
+    ref_result = _reference_cachier(reference_metric)(
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:212: in _reference_sklearn_accuracy_multiclass
+    confmat = sk_confusion_matrix(true, pred, labels=list(range(NUM_CLASSES)))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:549: in confusion_matrix
+    y_type, unique_labels, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'numpy' from '/home/wll/.local/lib/python3.14/site-packages/numpy/__init__.py'>
+device = 'cpu'
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMulticlassAccuracy.test_multiclass_accuracy_functional[weighted-samplewise-0-input[multi_dim-probs]] _
+
+self = <unittests.classification.test_accuracy.TestMulticlassAccuracy object at 0x7ef56a130870>
+inputs = _Input(preds=tensor([[[[0.2259, 0.2657, 0.1682],
+          [0.2378, 0.1649, 0.2317],
+          [0.1596, 0.2247, 0.2195...      [3, 4, 4],
+         [0, 1, 2],
+         [4, 3, 0],
+         [1, 3, 1],
+         [2, 0, 2],
+         [0, 1, 0]]]))
+ignore_index = 0, multidim_average = 'samplewise', average = 'weighted'
+
+    @pytest.mark.parametrize("ignore_index", [None, 0, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    def test_multiclass_accuracy_functional(self, inputs, ignore_index, multidim_average, average):
+        """Test functional implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and target.ndim < 3:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+    
+>       self.run_functional_metric_test(
+            preds=preds,
+            target=target,
+            metric_functional=multiclass_accuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multiclass,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+                "num_classes": NUM_CLASSES,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:277: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:486: in run_functional_metric_test
+    _functional_test(
+tests/unittests/_helpers/testers.py:381: in _functional_test
+    ref_result = _reference_cachier(reference_metric)(
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:212: in _reference_sklearn_accuracy_multiclass
+    confmat = sk_confusion_matrix(true, pred, labels=list(range(NUM_CLASSES)))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:549: in confusion_matrix
+    y_type, unique_labels, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'numpy' from '/home/wll/.local/lib/python3.14/site-packages/numpy/__init__.py'>
+device = 'cpu'
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMulticlassAccuracy.test_multiclass_accuracy_functional[None-samplewise-0-input[multi_dim-probs]] _
+
+self = <unittests.classification.test_accuracy.TestMulticlassAccuracy object at 0x7ef56a1319a0>
+inputs = _Input(preds=tensor([[[[0.2259, 0.2657, 0.1682],
+          [0.2378, 0.1649, 0.2317],
+          [0.1596, 0.2247, 0.2195...      [3, 4, 4],
+         [0, 1, 2],
+         [4, 3, 0],
+         [1, 3, 1],
+         [2, 0, 2],
+         [0, 1, 0]]]))
+ignore_index = 0, multidim_average = 'samplewise', average = None
+
+    @pytest.mark.parametrize("ignore_index", [None, 0, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    def test_multiclass_accuracy_functional(self, inputs, ignore_index, multidim_average, average):
+        """Test functional implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and target.ndim < 3:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+    
+>       self.run_functional_metric_test(
+            preds=preds,
+            target=target,
+            metric_functional=multiclass_accuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multiclass,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+                "num_classes": NUM_CLASSES,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:277: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:486: in run_functional_metric_test
+    _functional_test(
+tests/unittests/_helpers/testers.py:381: in _functional_test
+    ref_result = _reference_cachier(reference_metric)(
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:212: in _reference_sklearn_accuracy_multiclass
+    confmat = sk_confusion_matrix(true, pred, labels=list(range(NUM_CLASSES)))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:549: in confusion_matrix
+    y_type, unique_labels, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'numpy' from '/home/wll/.local/lib/python3.14/site-packages/numpy/__init__.py'>
+device = 'cpu'
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMultilabelAccuracy.test_multilabel_accuracy[macro-samplewise--1-False-input[multi_dim-logits]] _
+
+self = <unittests.classification.test_accuracy.TestMultilabelAccuracy object at 0x7ef56a196ee0>
+ddp = False
+inputs = _Input(preds=tensor([[[[-9.6883e-01, -6.7808e-01, -3.3086e-01],
+          [-1.7215e+00,  2.5158e+00,  1.5721e+00],
+   ..., 0, 0]],
+
+         [[0, 1, 0],
+          [0, 0, 1],
+          [1, 0, 0],
+          [0, 0, 1],
+          [1, 1, 1]]]]))
+ignore_index = -1, multidim_average = 'samplewise', average = 'macro'
+
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    @pytest.mark.parametrize("ignore_index", [None, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    def test_multilabel_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and preds.ndim < 4:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MultilabelAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multilabel,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "num_labels": NUM_CLASSES,
+                "threshold": THRESHOLD,
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:640: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:602: in _reference_sklearn_accuracy_multilabel
+    scores.append(_reference_sklearn_accuracy(true, pred))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:40: in _reference_sklearn_accuracy
+    score = sk_accuracy(target, preds)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:420: in accuracy_score
+    y_type, _, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=uint8)
+sample_weight = None
+xp = <module 'sklearn.externals.array_api_compat.numpy' from '/home/wll/uid191/sklearn/externals/array_api_compat/numpy/__init__.py'>
+device = None
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMultilabelAccuracy.test_multilabel_accuracy[weighted-samplewise--1-False-input[multi_dim-probs]] _
+
+self = <unittests.classification.test_accuracy.TestMultilabelAccuracy object at 0x7ef56a197d90>
+ddp = False
+inputs = _Input(preds=tensor([[[[0.2263, 0.9391, 0.8583],
+          [0.3228, 0.7561, 0.9560],
+          [0.1576, 0.5789, 0.7164..., 0, 0]],
+
+         [[1, 1, 0],
+          [0, 1, 0],
+          [0, 0, 1],
+          [0, 1, 0],
+          [1, 1, 0]]]]))
+ignore_index = -1, multidim_average = 'samplewise', average = 'weighted'
+
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    @pytest.mark.parametrize("ignore_index", [None, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    def test_multilabel_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and preds.ndim < 4:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MultilabelAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multilabel,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "num_labels": NUM_CLASSES,
+                "threshold": THRESHOLD,
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:640: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:602: in _reference_sklearn_accuracy_multilabel
+    scores.append(_reference_sklearn_accuracy(true, pred))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:40: in _reference_sklearn_accuracy
+    score = sk_accuracy(target, preds)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:420: in accuracy_score
+    y_type, _, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=uint8)
+sample_weight = None
+xp = <module 'sklearn.externals.array_api_compat.numpy' from '/home/wll/uid191/sklearn/externals/array_api_compat/numpy/__init__.py'>
+device = None
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMultilabelAccuracy.test_multilabel_accuracy[weighted-samplewise--1-False-input[multi_dim-logits]] _
+
+self = <unittests.classification.test_accuracy.TestMultilabelAccuracy object at 0x7ef56a197de0>
+ddp = False
+inputs = _Input(preds=tensor([[[[-9.6883e-01, -6.7808e-01, -3.3086e-01],
+          [-1.7215e+00,  2.5158e+00,  1.5721e+00],
+   ..., 0, 0]],
+
+         [[0, 1, 0],
+          [0, 0, 1],
+          [1, 0, 0],
+          [0, 0, 1],
+          [1, 1, 1]]]]))
+ignore_index = -1, multidim_average = 'samplewise', average = 'weighted'
+
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    @pytest.mark.parametrize("ignore_index", [None, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    def test_multilabel_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and preds.ndim < 4:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MultilabelAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multilabel,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "num_labels": NUM_CLASSES,
+                "threshold": THRESHOLD,
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:640: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:602: in _reference_sklearn_accuracy_multilabel
+    scores.append(_reference_sklearn_accuracy(true, pred))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:40: in _reference_sklearn_accuracy
+    score = sk_accuracy(target, preds)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:420: in accuracy_score
+    y_type, _, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=uint8)
+sample_weight = None
+xp = <module 'sklearn.externals.array_api_compat.numpy' from '/home/wll/uid191/sklearn/externals/array_api_compat/numpy/__init__.py'>
+device = None
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMultilabelAccuracy.test_multilabel_accuracy[None-samplewise--1-False-input[multi_dim-labels]] _
+
+self = <unittests.classification.test_accuracy.TestMultilabelAccuracy object at 0x7ef56a044c80>
+ddp = False
+inputs = _Input(preds=tensor([[[[0, 0, 0],
+          [1, 1, 0],
+          [1, 0, 0],
+          [1, 1, 0],
+          [1, 1, 0]],..., 0, 1]],
+
+         [[1, 1, 1],
+          [1, 1, 0],
+          [0, 0, 0],
+          [1, 0, 0],
+          [1, 0, 0]]]]))
+ignore_index = -1, multidim_average = 'samplewise', average = None
+
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    @pytest.mark.parametrize("ignore_index", [None, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    def test_multilabel_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and preds.ndim < 4:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MultilabelAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multilabel,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "num_labels": NUM_CLASSES,
+                "threshold": THRESHOLD,
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:640: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:602: in _reference_sklearn_accuracy_multilabel
+    scores.append(_reference_sklearn_accuracy(true, pred))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:40: in _reference_sklearn_accuracy
+    score = sk_accuracy(target, preds)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:420: in accuracy_score
+    y_type, _, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'sklearn.externals.array_api_compat.numpy' from '/home/wll/uid191/sklearn/externals/array_api_compat/numpy/__init__.py'>
+device = None
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMultilabelAccuracy.test_multilabel_accuracy[None-samplewise--1-False-input[multi_dim-logits]] _
+
+self = <unittests.classification.test_accuracy.TestMultilabelAccuracy object at 0x7ef56a044d20>
+ddp = False
+inputs = _Input(preds=tensor([[[[-9.6883e-01, -6.7808e-01, -3.3086e-01],
+          [-1.7215e+00,  2.5158e+00,  1.5721e+00],
+   ..., 0, 0]],
+
+         [[0, 1, 0],
+          [0, 0, 1],
+          [1, 0, 0],
+          [0, 0, 1],
+          [1, 1, 1]]]]))
+ignore_index = -1, multidim_average = 'samplewise', average = None
+
+    @pytest.mark.parametrize("ddp", [pytest.param(True, marks=pytest.mark.DDP), False])
+    @pytest.mark.parametrize("ignore_index", [None, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    def test_multilabel_accuracy(self, ddp, inputs, ignore_index, multidim_average, average):
+        """Test class implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and preds.ndim < 4:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+        if multidim_average == "samplewise" and ddp:
+            pytest.skip("samplewise and ddp give different order than non ddp")
+    
+>       self.run_class_metric_test(
+            ddp=ddp,
+            preds=preds,
+            target=target,
+            metric_class=MultilabelAccuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multilabel,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "num_labels": NUM_CLASSES,
+                "threshold": THRESHOLD,
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:640: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:567: in run_class_metric_test
+    _class_test(rank=0, world_size=1, **common_kwargs, **kwargs_update)
+tests/unittests/_helpers/testers.py:274: in _class_test
+    ref_batch_result = _reference_cachier(reference_metric)(preds_, target_, **batch_kwargs_update)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:602: in _reference_sklearn_accuracy_multilabel
+    scores.append(_reference_sklearn_accuracy(true, pred))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:40: in _reference_sklearn_accuracy
+    score = sk_accuracy(target, preds)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:420: in accuracy_score
+    y_type, _, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=uint8)
+sample_weight = None
+xp = <module 'sklearn.externals.array_api_compat.numpy' from '/home/wll/uid191/sklearn/externals/array_api_compat/numpy/__init__.py'>
+device = None
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMultilabelAccuracy.test_multilabel_accuracy_functional[weighted-samplewise--1-input[multi_dim-labels]] _
+
+self = <unittests.classification.test_accuracy.TestMultilabelAccuracy object at 0x7ef56a0466c0>
+inputs = _Input(preds=tensor([[[[0, 0, 0],
+          [1, 1, 0],
+          [1, 0, 0],
+          [1, 1, 0],
+          [1, 1, 0]],..., 0, 1]],
+
+         [[1, 1, 1],
+          [1, 1, 0],
+          [0, 0, 0],
+          [1, 0, 0],
+          [1, 0, 0]]]]))
+ignore_index = -1, multidim_average = 'samplewise', average = 'weighted'
+
+    @pytest.mark.parametrize("ignore_index", [None, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    def test_multilabel_accuracy_functional(self, inputs, ignore_index, multidim_average, average):
+        """Test functional implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and preds.ndim < 4:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+    
+>       self.run_functional_metric_test(
+            preds=preds,
+            target=target,
+            metric_functional=multilabel_accuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multilabel,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "num_labels": NUM_CLASSES,
+                "threshold": THRESHOLD,
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:671: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:486: in run_functional_metric_test
+    _functional_test(
+tests/unittests/_helpers/testers.py:381: in _functional_test
+    ref_result = _reference_cachier(reference_metric)(
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:602: in _reference_sklearn_accuracy_multilabel
+    scores.append(_reference_sklearn_accuracy(true, pred))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:40: in _reference_sklearn_accuracy
+    score = sk_accuracy(target, preds)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:420: in accuracy_score
+    y_type, _, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'sklearn.externals.array_api_compat.numpy' from '/home/wll/uid191/sklearn/externals/array_api_compat/numpy/__init__.py'>
+device = None
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMultilabelAccuracy.test_multilabel_accuracy_functional[weighted-samplewise--1-input[multi_dim-probs]] _
+
+self = <unittests.classification.test_accuracy.TestMultilabelAccuracy object at 0x7ef56a046710>
+inputs = _Input(preds=tensor([[[[0.2263, 0.9391, 0.8583],
+          [0.3228, 0.7561, 0.9560],
+          [0.1576, 0.5789, 0.7164..., 0, 0]],
+
+         [[1, 1, 0],
+          [0, 1, 0],
+          [0, 0, 1],
+          [0, 1, 0],
+          [1, 1, 0]]]]))
+ignore_index = -1, multidim_average = 'samplewise', average = 'weighted'
+
+    @pytest.mark.parametrize("ignore_index", [None, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    def test_multilabel_accuracy_functional(self, inputs, ignore_index, multidim_average, average):
+        """Test functional implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and preds.ndim < 4:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+    
+>       self.run_functional_metric_test(
+            preds=preds,
+            target=target,
+            metric_functional=multilabel_accuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multilabel,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "num_labels": NUM_CLASSES,
+                "threshold": THRESHOLD,
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:671: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:486: in run_functional_metric_test
+    _functional_test(
+tests/unittests/_helpers/testers.py:381: in _functional_test
+    ref_result = _reference_cachier(reference_metric)(
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:602: in _reference_sklearn_accuracy_multilabel
+    scores.append(_reference_sklearn_accuracy(true, pred))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:40: in _reference_sklearn_accuracy
+    score = sk_accuracy(target, preds)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:420: in accuracy_score
+    y_type, _, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=uint8)
+sample_weight = None
+xp = <module 'sklearn.externals.array_api_compat.numpy' from '/home/wll/uid191/sklearn/externals/array_api_compat/numpy/__init__.py'>
+device = None
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+_ TestMultilabelAccuracy.test_multilabel_accuracy_functional[None-samplewise--1-input[multi_dim-labels]] _
+
+self = <unittests.classification.test_accuracy.TestMultilabelAccuracy object at 0x7ef56a047070>
+inputs = _Input(preds=tensor([[[[0, 0, 0],
+          [1, 1, 0],
+          [1, 0, 0],
+          [1, 1, 0],
+          [1, 1, 0]],..., 0, 1]],
+
+         [[1, 1, 1],
+          [1, 1, 0],
+          [0, 0, 0],
+          [1, 0, 0],
+          [1, 0, 0]]]]))
+ignore_index = -1, multidim_average = 'samplewise', average = None
+
+    @pytest.mark.parametrize("ignore_index", [None, -1])
+    @pytest.mark.parametrize("multidim_average", ["global", "samplewise"])
+    @pytest.mark.parametrize("average", ["micro", "macro", "weighted", None])
+    def test_multilabel_accuracy_functional(self, inputs, ignore_index, multidim_average, average):
+        """Test functional implementation of metric."""
+        preds, target = inputs
+        if ignore_index == -1:
+            target = inject_ignore_index(target, ignore_index)
+        if multidim_average == "samplewise" and preds.ndim < 4:
+            pytest.skip("samplewise and non-multidim arrays are not valid")
+    
+>       self.run_functional_metric_test(
+            preds=preds,
+            target=target,
+            metric_functional=multilabel_accuracy,
+            reference_metric=partial(
+                _reference_sklearn_accuracy_multilabel,
+                ignore_index=ignore_index,
+                multidim_average=multidim_average,
+                average=average,
+            ),
+            metric_args={
+                "num_labels": NUM_CLASSES,
+                "threshold": THRESHOLD,
+                "ignore_index": ignore_index,
+                "multidim_average": multidim_average,
+                "average": average,
+            },
+        )
+
+tests/unittests/classification/test_accuracy.py:671: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unittests/_helpers/testers.py:486: in run_functional_metric_test
+    _functional_test(
+tests/unittests/_helpers/testers.py:381: in _functional_test
+    ref_result = _reference_cachier(reference_metric)(
+../.local/lib/python3.14/site-packages/cachier/core.py:606: in func_wrapper
+    return _call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:459: in _call
+    return _calc_entry(core, key, func, args, kwds, _print)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/lib/python3.14/site-packages/cachier/core.py:84: in _calc_entry
+    func_res = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:602: in _reference_sklearn_accuracy_multilabel
+    scores.append(_reference_sklearn_accuracy(true, pred))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unittests/classification/test_accuracy.py:40: in _reference_sklearn_accuracy
+    score = sk_accuracy(target, preds)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/utils/_param_validation.py:218: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+../uid191/sklearn/metrics/_classification.py:420: in accuracy_score
+    y_type, _, y_true, y_pred, sample_weight = _check_targets(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+y_true = array([], dtype=int64), y_pred = array([], dtype=int64)
+sample_weight = None
+xp = <module 'sklearn.externals.array_api_compat.numpy' from '/home/wll/uid191/sklearn/externals/array_api_compat/numpy/__init__.py'>
+device = None
+
+    def _check_targets(y_true, y_pred, sample_weight=None, xp=None, device=None):
+        """Check that y_true and y_pred belong to the same classification task.
+    
+        This converts multiclass or binary types to a common shape, and raises a
+        ValueError for:
+    
+            - targets of different lengths,
+            - a mix of multilabel and multiclass targets,
+            - a mix of multilabel target and anything else
+              (because there are no explicit labels),
+            - the presence of continuous-valued or multioutput (or 'unknown') targets,
+            - mix of string and integer labels.
+    
+        Column vectors are squeezed to 1d, while multilabel formats are returned
+        as CSR sparse label indicators.
+    
+        Parameters
+        ----------
+        y_true : array-like
+    
+        y_pred : array-like
+    
+        sample_weight : array-like, default=None
+    
+        xp : module, default=None
+            Precomputed array namespace module. When passed, along with `device`,
+            typically from a caller that has already performed inspection of its own
+            inputs, skips array namespace inspection. If `None`, the inputs are converted
+            to the namespace of `y_pred`.
+    
+        device : device, default=None
+            Precomputed device. When passed, along with `xp`, typically from a caller
+            that has already performed inspection of its own inputs, skips device
+            inspection and moves everything to that device. If `None`, the inputs are
+            converted to the device of `y_pred`.
+    
+        Returns
+        -------
+        type_true : one of {'multilabel-indicator', 'multiclass', 'binary'}
+            The type of the true target data, as output by
+            ``utils.multiclass.type_of_target``.
+    
+        unique_labels : array
+            An ordered array of unique labels occurring either in `y_true`, `y_pred` or
+            both.
+    
+        y_true : array or indicator matrix
+    
+        y_pred : array or indicator matrix
+    
+        sample_weight : array or None
+        """
+        if xp is None or device is None:
+            xp, _, device = get_namespace_and_device(y_pred, xp=xp)
+        # Move to specified namespace and device, or the namespace and device of `y_pred`
+        y_true, y_pred, sample_weight = move_to(
+            y_true, y_pred, sample_weight, xp=xp, device=device
+        )
+        y_true, y_pred = attach_unique(y_true, y_pred)
+    
+        check_consistent_length(y_true, y_pred, sample_weight)
+        type_true = type_of_target(y_true, input_name="y_true")
+        type_pred = type_of_target(y_pred, input_name="y_pred")
+        for array in [y_true, y_pred]:
+            if _num_samples(array) < 1:
+>               raise ValueError(
+                    "Found empty input array (e.g., `y_true` or `y_pred`) while a minimum "
+                    "of 1 sample is required."
+                )
+E               ValueError: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.
+
+../uid191/sklearn/metrics/_classification.py:138: ValueError
+=============================== warnings summary ===============================
+tests/unittests/wrappers/test_bootstrapping.py:36
+  /home/wll/uid62/tests/unittests/wrappers/test_bootstrapping.py:36: PytestCollectionWarning: cannot collect test class 'TestBootStrapper' because it has a __init__ constructor (from: tests/unittests/wrappers/test_bootstrapping.py)
+    class TestBootStrapper(BootStrapper):
+
+tests/unittests/wrappers/test_minmax.py:32
+  /home/wll/uid62/tests/unittests/wrappers/test_minmax.py:32: PytestCollectionWarning: cannot collect test class 'TestingMinMaxMetric' because it has a __init__ constructor (from: tests/unittests/wrappers/test_minmax.py)
+    class TestingMinMaxMetric(MinMaxMetric):
+
+tests/unittests/classification/test_accuracy.py: 354 warnings
+tests/unittests/regression/test_r2.py: 36 warnings
+tests/unittests/regression/test_pearson.py: 16 warnings
+tests/unittests/clustering/test_adjusted_mutual_info_score.py: 16 warnings
+tests/unittests/clustering/test_adjusted_rand_score.py: 4 warnings
+tests/unittests/clustering/test_calinski_harabasz_score.py: 4 warnings
+tests/unittests/clustering/test_davies_bouldin_score.py: 4 warnings
+tests/unittests/clustering/test_dunn_index.py: 12 warnings
+tests/unittests/clustering/test_fowlkes_mallows_index.py: 4 warnings
+tests/unittests/clustering/test_homogeneity_completeness_v_measure.py: 16 warnings
+tests/unittests/clustering/test_mutual_info_score.py: 4 warnings
+tests/unittests/clustering/test_normalized_mutual_info_score.py: 16 warnings
+tests/unittests/clustering/test_rand_score.py: 4 warnings
+tests/unittests/wrappers/test_multioutput.py: 4 warnings
+  /home/wll/uid62/src/torchmetrics/utilities/prints.py:32: DeprecationWarning: This property will be removed in 2.0.0. Use `Metric.updated_called` instead.
+    return fn(*args, **kwargs)
+
+tests/unittests/classification/test_accuracy.py: 180 warnings
+  /home/wll/uid62/tests/unittests/classification/test_accuracy.py:190: RuntimeWarning: invalid value encountered in divide
+    acc_per_class = confmat.diagonal() / confmat.sum(axis=1)
+
+tests/unittests/classification/test_accuracy.py: 5960 warnings
+  /home/wll/uid62/tests/unittests/classification/test_accuracy.py:213: RuntimeWarning: invalid value encountered in divide
+    acc_per_class = confmat.diagonal() / confmat.sum(axis=1)
+
+tests/unittests/regression/test_r2.py: 12 warnings
+  /home/wll/uid62/src/torchmetrics/utilities/prints.py:43: UserWarning: More independent regressions than data points in adjusted r2 score. Falls back to standard r2 score.
+    warnings.warn(*args, **kwargs)
+
+tests/unittests/regression/test_pearson.py::test_single_sample_update
+  /home/wll/uid62/src/torchmetrics/utilities/prints.py:43: UserWarning: The variance of predictions or target is close to zero. This can cause instability in Pearson correlationcoefficient, leading to wrong results. Consider re-scaling the input if possible or computing using alarger dtype (currently using torch.float32). Setting the correlation coefficient to nan.
+    warnings.warn(*args, **kwargs)
+
+tests/unittests/regression/test_pearson.py::test_overwrite_reference_inputs
+  /home/wll/uid62/tests/unittests/regression/test_pearson.py:268: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.detach().clone() or sourceTensor.detach().clone().requires_grad_(True), rather than torch.tensor(sourceTensor).
+    pearson.update(torch.tensor(y[lower:upper]), torch.tensor(y_pred[lower:upper]))
+
+tests/unittests/clustering/test_adjusted_mutual_info_score.py::TestAdjustedMutualInfoScore::test_adjusted_mutual_info_score[True-min-preds0-target0]
+  /home/wll/uid62/src/torchmetrics/functional/clustering/utils.py:156: UserWarning: Sparse invariant checks are implicitly disabled. Memory errors (e.g. SEGFAULT) will occur when operating on a sparse tensor which violates the invariants, but checks incur performance overhead. To silence this warning, explicitly opt in or out. See `torch.sparse.check_sparse_tensor_invariants.__doc__` for guidance.  (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:848.)
+    contingency = torch.sparse_coo_tensor(
+
+tests/unittests/wrappers/test_bootstrapping.py::test_bootstrap[metric0-ref_metric0-poisson-cpu]
+tests/unittests/wrappers/test_bootstrapping.py::test_bootstrap[metric0-ref_metric0-multinomial-cpu]
+  /home/wll/uid62/src/torchmetrics/utilities/prints.py:43: UserWarning: The ``compute`` method of metric MulticlassPrecision was called before the ``update`` method which may lead to errors, as metric states have not yet been updated.
+    warnings.warn(*args, **kwargs)
+
+tests/unittests/wrappers/test_bootstrapping.py::test_bootstrap[metric1-ref_metric1-poisson-cpu]
+tests/unittests/wrappers/test_bootstrapping.py::test_bootstrap[metric1-ref_metric1-multinomial-cpu]
+  /home/wll/uid62/src/torchmetrics/utilities/prints.py:43: UserWarning: The ``compute`` method of metric MulticlassRecall was called before the ``update`` method which may lead to errors, as metric states have not yet been updated.
+    warnings.warn(*args, **kwargs)
+
+tests/unittests/wrappers/test_bootstrapping.py::test_bootstrap[metric2-mean_squared_error-poisson-cpu]
+tests/unittests/wrappers/test_bootstrapping.py::test_bootstrap[metric2-mean_squared_error-multinomial-cpu]
+  /home/wll/uid62/src/torchmetrics/utilities/prints.py:43: UserWarning: The ``compute`` method of metric MeanSquaredError was called before the ``update`` method which may lead to errors, as metric states have not yet been updated.
+    warnings.warn(*args, **kwargs)
+
+tests/unittests/wrappers/test_bootstrapping.py::test_low_sample_amount[poisson]
+  /home/wll/uid62/src/torchmetrics/utilities/prints.py:43: UserWarning: The ``compute`` method of metric MulticlassF1Score was called before the ``update`` method which may lead to errors, as metric states have not yet been updated.
+    warnings.warn(*args, **kwargs)
+
+tests/unittests/wrappers/test_minmax.py::test_no_scalar_compute
+  /home/wll/uid62/src/torchmetrics/utilities/prints.py:43: UserWarning: The ``compute`` method of metric BinaryConfusionMatrix was called before the ``update`` method which may lead to errors, as metric states have not yet been updated.
+    warnings.warn(*args, **kwargs)
+
+tests/unittests/wrappers/test_multioutput.py::TestMultioutputWrapper::test_multioutput_wrapper[True-R2Score-_multi_target_sk_r2score-preds0-target0-2]
+tests/unittests/wrappers/test_multioutput.py::TestMultioutputWrapper::test_multioutput_wrapper[True-base_metric_class1-compare_metric1-preds1-target1-2]
+tests/unittests/wrappers/test_multioutput.py::TestMultioutputWrapper::test_multioutput_wrapper[False-R2Score-_multi_target_sk_r2score-preds0-target0-2]
+tests/unittests/wrappers/test_multioutput.py::TestMultioutputWrapper::test_multioutput_wrapper[False-base_metric_class1-compare_metric1-preds1-target1-2]
+  /home/wll/uid62/src/torchmetrics/utilities/prints.py:43: UserWarning: The ``compute`` method of metric _MultioutputMetric was called before the ``update`` method which may lead to errors, as metric states have not yet been updated.
+    warnings.warn(*args, **kwargs)
+
+tests/unittests/wrappers/test_tracker.py::test_metric_tracker_and_collection_multioutput[input_to_tracker0-Tensor]
+  /home/wll/uid62/src/torchmetrics/utilities/prints.py:43: UserWarning: Encountered the following error when trying to get the best metric: a Tensor with 2 elements cannot be converted to Scalarthis is probably due to the 'best' not being defined for this metric.Returning `None` instead.
+    warnings.warn(*args, **kwargs)
+
+tests/unittests/wrappers/test_tracker.py::test_metric_tracker_and_collection_multioutput[input_to_tracker1-dict]
+  /home/wll/uid62/src/torchmetrics/utilities/prints.py:43: UserWarning: Encountered the following error when trying to get the best metric for metric mae:a Tensor with 2 elements cannot be converted to Scalar this is probably due to the 'best' not being defined for this metric.Returning `None` instead.
+    warnings.warn(*args, **kwargs)
+
+tests/unittests/wrappers/test_tracker.py::test_metric_tracker_and_collection_multioutput[input_to_tracker1-dict]
+  /home/wll/uid62/src/torchmetrics/utilities/prints.py:43: UserWarning: Encountered the following error when trying to get the best metric for metric mse:a Tensor with 2 elements cannot be converted to Scalar this is probably due to the 'best' not being defined for this metric.Returning `None` instead.
+    warnings.warn(*args, **kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unittests/classification/test_accuracy.py::TestMulticlassAccuracy::test_multiclass_accuracy[False-micro-samplewise-0-input[multi_dim-probs]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMulticlassAccuracy::test_multiclass_accuracy[False-micro-samplewise-0-input[multi_dim-logits]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMulticlassAccuracy::test_multiclass_accuracy[False-micro-samplewise--1-input[multi_dim-labels]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMulticlassAccuracy::test_multiclass_accuracy[False-macro-samplewise-0-input[multi_dim-probs]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMulticlassAccuracy::test_multiclass_accuracy[False-macro-samplewise-0-input[multi_dim-logits]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMulticlassAccuracy::test_multiclass_accuracy[False-macro-samplewise--1-input[multi_dim-logits]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMulticlassAccuracy::test_multiclass_accuracy[False-weighted-samplewise-0-input[multi_dim-probs]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMulticlassAccuracy::test_multiclass_accuracy[False-weighted-samplewise-0-input[multi_dim-logits]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMulticlassAccuracy::test_multiclass_accuracy[False-weighted-samplewise--1-input[multi_dim-probs]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMulticlassAccuracy::test_multiclass_accuracy[False-None-samplewise-0-input[multi_dim-probs]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMulticlassAccuracy::test_multiclass_accuracy[False-None-samplewise-0-input[multi_dim-logits]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMulticlassAccuracy::test_multiclass_accuracy_functional[micro-samplewise-0-input[multi_dim-probs]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMulticlassAccuracy::test_multiclass_accuracy_functional[macro-samplewise-0-input[multi_dim-probs]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMulticlassAccuracy::test_multiclass_accuracy_functional[weighted-samplewise-0-input[multi_dim-probs]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMulticlassAccuracy::test_multiclass_accuracy_functional[None-samplewise-0-input[multi_dim-probs]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMultilabelAccuracy::test_multilabel_accuracy[macro-samplewise--1-False-input[multi_dim-logits]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMultilabelAccuracy::test_multilabel_accuracy[weighted-samplewise--1-False-input[multi_dim-probs]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMultilabelAccuracy::test_multilabel_accuracy[weighted-samplewise--1-False-input[multi_dim-logits]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMultilabelAccuracy::test_multilabel_accuracy[None-samplewise--1-False-input[multi_dim-labels]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMultilabelAccuracy::test_multilabel_accuracy[None-samplewise--1-False-input[multi_dim-logits]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMultilabelAccuracy::test_multilabel_accuracy_functional[weighted-samplewise--1-input[multi_dim-labels]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMultilabelAccuracy::test_multilabel_accuracy_functional[weighted-samplewise--1-input[multi_dim-probs]]
+FAILED tests/unittests/classification/test_accuracy.py::TestMultilabelAccuracy::test_multilabel_accuracy_functional[None-samplewise--1-input[multi_dim-labels]]
+23 failed, 1052 passed, 488 skipped, 6666 warnings in 72.64s (0:01:12)

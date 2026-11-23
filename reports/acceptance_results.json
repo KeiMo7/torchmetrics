@@ -1,0 +1,120 @@
+{
+  "order_insensitivity": {
+    "SumMetric": {
+      "distinct_results_across_24_permutations": 1,
+      "bit_identical_for_every_order": true,
+      "merged_value": 4950.0,
+      "single_machine_value": 4950.0,
+      "exact_match": true
+    },
+    "MeanMetric": {
+      "distinct_results_across_24_permutations": 1,
+      "bit_identical_for_every_order": true,
+      "merged_value": 49.5,
+      "single_machine_value": 49.5,
+      "exact_match": true
+    },
+    "MaxMetric": {
+      "distinct_results_across_24_permutations": 1,
+      "bit_identical_for_every_order": true,
+      "merged_value": 99.0,
+      "single_machine_value": 99.0,
+      "exact_match": true
+    },
+    "MinMetric": {
+      "distinct_results_across_24_permutations": 1,
+      "bit_identical_for_every_order": true,
+      "merged_value": 0.0,
+      "single_machine_value": 0.0,
+      "exact_match": true
+    },
+    "CatMetric": {
+      "distinct_ordered_outputs_across_24_permutations": 1,
+      "bit_identical_for_every_order": true,
+      "output_length": 100,
+      "multiset_matches_single_machine": true
+    }
+  },
+  "idempotency": {
+    "value_after_first_merge": 4950.0,
+    "value_after_resubmitting_all_plus_one_copy": 4950.0,
+    "idempotent": true,
+    "duplicate_ids_recorded_on_manifest": [
+      "94ff58070d3a446f9442c965b99afa88",
+      "e8ef9c7dba604cc887028aeddcf48ec8",
+      "cf843714ec374b8ba393616ba7039b5f",
+      "5f702cdc3a6c499a98b711fad9328c62",
+      "cf843714ec374b8ba393616ba7039b5f"
+    ],
+    "same_content_new_id_treated_as_duplicate": true,
+    "value_with_renamed_copy": 4950.0
+  },
+  "validation": {
+    "missing_shard_reject": {
+      "rejected": true,
+      "message": "refusing to merge: 1 expected shard(s) missing: ['745c37e2fd6d4b42b8eecde5e4f18939']. Re-run with missing_policy='partial' to merge the arrived shards with an explicit coverage annotation."
+    },
+    "missing_shard_partial": {
+      "warning_emitted": true,
+      "structured_event": "LowCoverageEvent",
+      "coverage_ratio": 0.75,
+      "missing_shard_ids": [
+        "745c37e2fd6d4b42b8eecde5e4f18939"
+      ],
+      "merged_value": 2775.0,
+      "expected_value_for_first_75_samples": 2775.0
+    },
+    "duplicate_shard": {
+      "value": 4950.0,
+      "expected_value": 4950.0,
+      "duplicate_ids_recorded": [
+        "e2233620067c4bf6b2d44c16fedbdd5e"
+      ]
+    },
+    "fingerprint_mismatch": {
+      "rejected": true,
+      "message": "configuration fingerprint mismatch between target metric and shards: target 4b5bd8000316…, shards ['4b5bd8000316…', '8b04d2ff3159…']. Merging shards computed under a different configuration is refused."
+    }
+  },
+  "tolerance": {
+    "SumMetric": {
+      "merged": 4950.0,
+      "single_machine": 4950.0,
+      "abs_difference": 0.0,
+      "tolerance": 1e-06,
+      "within_tolerance": true,
+      "bit_exact": true
+    },
+    "MeanMetric": {
+      "merged": 49.5,
+      "single_machine": 49.5,
+      "abs_difference": 0.0,
+      "tolerance": 1e-06,
+      "within_tolerance": true,
+      "bit_exact": true
+    },
+    "MaxMetric": {
+      "merged": 99.0,
+      "single_machine": 99.0,
+      "abs_difference": 0.0,
+      "tolerance": 1e-06,
+      "within_tolerance": true,
+      "bit_exact": true
+    },
+    "MinMetric": {
+      "merged": 0.0,
+      "single_machine": 0.0,
+      "abs_difference": 0.0,
+      "tolerance": 1e-06,
+      "within_tolerance": true,
+      "bit_exact": true
+    },
+    "MeanMetric_100k_floats": {
+      "merged": -0.007383354473859072,
+      "single_machine": -0.007383354473859072,
+      "abs_difference": 0.0,
+      "tolerance": 1e-06,
+      "within_tolerance": true
+    }
+  }
+}
